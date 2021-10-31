@@ -67,7 +67,7 @@ class TD():
             data = creat_vakansi(vakanci, self.excel['post'][vakanci])
             self.excel['post'][vakanci] = self.session.post(Hf_urls.new_vacansi, data=data).json()['id']
         # Удаление вакансий
-        for i in range(30, 60):
+        for i in range(5, 60):
             self.session.delete(f'https://dev-100-api.huntflow.dev/account/2/vacancies/{i}')
 
     def add_man_vacansi(self, i):
