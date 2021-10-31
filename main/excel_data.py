@@ -10,7 +10,10 @@ def excel_data(path):
     for index, i in s.iterrows():
         i[2] = re.sub(' ', '', str(i[2]))
         i[2] = str(int(re.findall('\d+', str(i[2]))[0]))
-        name = i['ФИО'].strip()
+        name = i['ФИО']
+        if len(name.split(' ')) > 2:
+            part = name.split(' ')
+            name = f'{part[0]} {part[1]}'
         post = i['Должность']
         if i['Должность'] in data['post']:
             data['post'][post] = data['post'][post] + 1

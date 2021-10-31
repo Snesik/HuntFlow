@@ -7,7 +7,6 @@ from models import *
 from excel_data import excel_data
 
 
-
 class TD():
     def __init__(self, flag):
         self.excel = {}
@@ -15,17 +14,9 @@ class TD():
         self.key = flag.key
         self.session = self.creat_session()
         self.take_files(flag.path)
-        self.creat_vacansi()
+        self.take_vacansi()
         for i in self.data:
-            a = creat_kandidat(self.data[i], self.excel[i])
-            """Загружаем в базу, полуачем id"""
-            self.data[i]['id_id'] = self.session.post(Hf_urls.upload_bd, data=a).json()['id']
-            """Создаем вакансию если нету"""
-            post = self.excel['post'][self.excel[i]['Должность']]
-            data = add_to_vacansi(post, self.excel[i])
-            self.session.post(add_man_in_vanaci(self.data[i]['id_id']), data=data).json()
-
-
+            self.add_man_vacansi(i)
 
     def take_files(self, path):
         paths_data = {}
@@ -58,14 +49,33 @@ class TD():
             name = 'file'
             data = {"file": (name, content, mime_type)}
             response = requests.post(Hf_urls.upload, headers=headers_upload(self.key), files=data).json()
-            name = os.path.splitext(response['name'])[0]
+            fio = response['fields']['name']
+            name = f"{fio['last']} {fio['first']}"
             name = unicodedata.normalize('NFC', name)
             self.data[name] = response
 
+    def take_vacansi(self):
+        all_vacansis = self.session.get(Hf_urls.take_all_vacansis).json()['items']
+        for va in all_vacansis:
+            for post in self.excel['post']:
+                if va['position'] == post:
+                    self.excel['post'][post] = va['id']
+
     def creat_vacansi(self):
+        # Создание вакансий
         for vakanci in self.excel['post']:
             data = creat_vakansi(vakanci, self.excel['post'][vakanci])
             self.excel['post'][vakanci] = self.session.post(Hf_urls.new_vacansi, data=data).json()['id']
+        # Удаление вакансий
+        for i in range(30, 60):
+            self.session.delete(f'https://dev-100-api.huntflow.dev/account/2/vacancies/{i}')
+
+    def add_man_vacansi(self, i):
+        kandidat = creat_kandidat(self.data[i], self.excel[i])
+        self.data[i]['id_id'] = self.session.post(Hf_urls.upload_bd, data=kandidat).json()['id']
+        post = self.excel['post'][self.excel[i]['Должность']]
+        data = add_to_vacansi(post, self.excel[i])
+        self.session.post(add_man_in_vanaci(self.data[i]['id_id']), data=data).json()
 
 
 if __name__ == '__main__':

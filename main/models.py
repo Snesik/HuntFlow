@@ -7,7 +7,7 @@ class Hf_urls:
     upload = base_url + '/account/2/upload'
     upload_bd = base_url + '/account/2/applicants'
     new_vacansi = base_url + '/account/2/vacancies'
-
+    take_all_vacansis = base_url + '/account/2/vacancies'
 
 def add_man_in_vanaci(id_vacansi):
     return f'{Hf_urls.base_url}/account/2/applicants/{id_vacansi}/vacancy'
@@ -32,6 +32,10 @@ def headers_upload(key):
 
 
 def creat_kandidat(kondidat, excel):
+    text = kondidat['text'].splitlines()
+    text = list(dict.fromkeys(text))
+    kondidat['text'] = '\n'.join(text)
+
     data = {
         "last_name": kondidat['fields']['name']['last'],
         "first_name": kondidat['fields']['name']['first'],
@@ -94,8 +98,8 @@ status = {
     'Интервью с HR': 4,
     'Интервью с заказчиком': 5,
     'Принятие решения': 6,
-    'id': 7,
-    'Выставлен оффер': 8,
+    'Выставлен оффер': 7,
+    'Оффер принят': 8,
     'Исп. срок пройден': 9,
     'Отказ': 10
 }
