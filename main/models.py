@@ -34,7 +34,7 @@ def headers_upload(key):
 def creat_kandidat(kondidat, excel):
     text = kondidat['text'].splitlines()
     text = list(dict.fromkeys(text))
-    kondidat['text'] = '\n'.join(text)
+    kondidat['text'] = '\n\n'.join(text)
 
     data = {
         "last_name": kondidat['fields']['name']['last'],
